@@ -1,5 +1,16 @@
 <?php
 /**
+ * @param array $arr
+ * @param bool  $die
+ */
+function fei_print($arr = [], $die = true)
+{
+    echo '<pre>';
+    print_r($arr);
+    $die && die;
+}
+
+/**
  * 对查询结果集进行排序
  * @access public
  * @param array $list 查询结果
