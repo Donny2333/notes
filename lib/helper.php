@@ -13,7 +13,7 @@ function fei_print($arr = [], $die = true)
 /**
  * 对查询结果集进行排序
  * @access public
- * @param array $list 查询结果
+ * @param array  $list 查询结果
  * @param string $field 排序的字段名
  * @param string $sortBy 排序类型
  * asc正向排序 desc逆向排序 nat自然排序
@@ -38,20 +38,20 @@ function list_sort_by($list, $field, $sortBy = 'asc')
         }
         foreach ($refer as $key => $val)
             $resultSet[] = &$list[$key];
-
+        
         return $resultSet;
     }
-
+    
     return false;
 }
 
 /**
  * 发送HTTP请求方法，目前只支持CURL发送请求
- * @param $url 请求URL
- * @param $params 请求参数
+ * @param        $url 请求URL
+ * @param        $params 请求参数
  * @param string $method 请求方法GET /POST
- * @param array $header
- * @param bool $postFile
+ * @param array  $header
+ * @param bool   $postFile
  * @return mixed $data 响应数据
  */
 function http($url, $params, $method = 'GET', $header = [], $postFile = false)
@@ -86,15 +86,15 @@ function http($url, $params, $method = 'GET', $header = [], $postFile = false)
     curl_close($ch);
     if ($error)
         exit ('请求发生错误：' . $error);
-
+    
     return $data;
 }
 
 /**
- * excel导出
  * @param $expTitle
  * @param $expCellName
  * @param $expTableData
+ * @throws Exception
  */
 function export_excel($expTitle, $expCellName, $expTableData)
 {
@@ -102,10 +102,10 @@ function export_excel($expTitle, $expCellName, $expTableData)
     $fileName = $xlsTitle . '-' . date('YmdHis');
     $cellNum  = count($expCellName);
     $dataNum  = count($expTableData);
-
+    
     $objPHPExcel = new PHPExcel();
     $cellName    = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 'AQ', 'AR', 'AS', 'AT', 'AU', 'AV', 'AW', 'AX', 'AY', 'AZ'];
-
+    
     $objPHPExcel->getActiveSheet(0)->mergeCells('A1:' . $cellName[$cellNum - 1] . '1');
     $objPHPExcel->setActiveSheetIndex(0)->setCellValue('A1', $expTitle . '  Export time:' . date('Y-m-d H:i:s'));
     for ($i = 0; $i < $cellNum; $i++) {
@@ -123,8 +123,44 @@ function export_excel($expTitle, $expCellName, $expTableData)
     header('pragma:public');
     header('Content-type:application/vnd.ms-excel;charset=utf-8;name="' . $xlsTitle . '.xls"');
     header("Content-Disposition:attachment;filename=$fileName.xls");
-
+    
     $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
     $objWriter->save('php://output');
     exit;
+}
+
+/**
+ * @param $filename
+ * @return array
+ * @throws Exception
+ */
+function read_excel($filename)
+{
+    if (pathinfo($filename, PATHINFO_EXTENSION) == 'xlsx') {
+        $objReader = PHPExcel_IOFactory::createReader('Excel2007');
+    } else {
+        $objReader = PHPExcel_IOFactory::createReader('Excel5');
+    }
+    
+    $objReader->setReadDataOnly(true);
+    $objPHPExcel = $objReader->load($filename);
+    
+    $data = [];
+    for ($i = 0, $sheetLength = $objPHPExcel->getSheetCount(); $i < $sheetLength; $i++) {
+        $objWorksheet       = $objPHPExcel->getSheet($i);
+        $highestRow         = $objWorksheet->getHighestRow();
+        $highestColumn      = $objWorksheet->getHighestColumn();
+        $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+        $excelData          = [];
+        // the zero index row is alpha A-Z
+        for ($row = 1; $row <= $highestRow; $row++) {
+            for ($col = 0; $col < $highestColumnIndex; $col++) {
+                $value                 = (string)$objWorksheet->getCellByColumnAndRow($col, $row)->getValue();
+                $excelData[$row - 1][] = $value;
+            }
+        }
+        $data[] = $excelData;
+    }
+    
+    return $data;
 }

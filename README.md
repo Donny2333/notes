@@ -8,3 +8,8 @@
 ![excel内容](Snipaste_2018-03-05_11-07-29.png)  
 
 [导出的excel样例](Test export-20180305105215.xls)
+
+
+# 导入 excel demo
+```php excel_import_practice.php```
+![excel导入内容](Snipaste_2018-03-14_23-50-46.png)
