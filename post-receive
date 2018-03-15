@@ -1,0 +1,17 @@
+#!/bin/sh
+
+DeployPath="/home/web/wwqs"
+unset GIT_DIR
+
+echo "==============================================="
+cd $DeployPath
+echo "deploying at $DeployPath"
+
+#git stash
+#git pull origin master
+git fetch --all
+git reset --hard origin/master
+
+time=`date`
+echo "web server deploy at: $time."
+echo "================================================"
