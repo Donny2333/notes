@@ -48,13 +48,13 @@ function list_sort_by($list, $field, $sortBy = 'asc')
 /**
  * 发送HTTP请求方法，目前只支持CURL发送请求
  * @param        $url 请求URL
- * @param        $params 请求参数
+ * @param array  $params 请求参数
  * @param string $method 请求方法GET /POST
  * @param array  $header
  * @param bool   $postFile
  * @return mixed $data 响应数据
  */
-function http($url, $params, $method = 'GET', $header = [], $postFile = false)
+function http($url, $params = [], $method = 'GET', $header = [], $postFile = false)
 {
     $opts = [
         CURLOPT_TIMEOUT        => 30,
@@ -66,7 +66,7 @@ function http($url, $params, $method = 'GET', $header = [], $postFile = false)
     /* 根据请求类型设置特定参数 */
     switch (strtoupper($method)) {
         case 'GET' :
-            $opts[CURLOPT_URL] = $url . '?' . http_build_query($params);
+            $opts[CURLOPT_URL] = $params ? $url . '?' . http_build_query($params) : $url;
             break;
         case 'POST' :
             // 判断是否传输文件
