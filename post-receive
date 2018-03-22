@@ -1,16 +1,33 @@
 #!/bin/sh
 
-DeployPath="/home/web/wwqs"
+project='test'
+#branch=$(git rev-parse --symbolic --abbrev-ref $1)
+
+while read oldrev newrev refname
+do
+  branch=$(git rev-parse --symbolic --abbrev-ref $refname)
+done
+
+DeployPath="/home/web/$project/$branch"
 unset GIT_DIR
+
+if [ ! -d "$DeployPath" ]; then
+  webProjectDir="/home/web/$project"
+  if [ ! -d "$webProjectDir" ]; then
+    mkdir $webProjectDir
+  fi
+  cd $webProjectDir
+  git clone /home/git/$project -b $branch $branch
+fi
 
 echo "==============================================="
 cd $DeployPath
-echo "deploying at $DeployPath"
+echo "[$project]deploying at $DeployPath and branch is $branch"
 
 #git stash
 #git pull origin master
 git fetch --all
-git reset --hard origin/master
+git reset --hard "origin/$branch"
 
 time=`date`
 echo "web server deploy at: $time."
