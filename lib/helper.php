@@ -113,7 +113,6 @@ function export_excel($expTitle, $expCellName, $expTableData)
         // 设置单元格之间的距离
         $objPHPExcel->getActiveSheet()->getColumnDimension($cellName[$i])->setWidth(18);
     }
-    // Miscellaneous glyphs, UTF-8
     for ($i = 0; $i < $dataNum; $i++) {
         for ($j = 0; $j < $cellNum; $j++) {
             $objPHPExcel->getActiveSheet(0)->setCellValue($cellName[$j] . ($i + 3), $expTableData[$i][$expCellName[$j][0]]);
@@ -152,7 +151,7 @@ function read_excel($filename)
         $highestColumn      = $objWorksheet->getHighestColumn();
         $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
         $excelData          = [];
-        // the zero index row is alpha A-Z
+        // the zero index row is alpha A-Z...AA-ZZ
         for ($row = 1; $row <= $highestRow; $row++) {
             for ($col = 0; $col < $highestColumnIndex; $col++) {
                 $value                 = (string)$objWorksheet->getCellByColumnAndRow($col, $row)->getValue();
