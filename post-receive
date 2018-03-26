@@ -8,26 +8,37 @@ do
   branch=$(git rev-parse --symbolic --abbrev-ref $refname)
 done
 
+echo 'start send email notification'
+git_multimail.py
+echo 'send email complete'
+
 DeployPath="/home/web/$project/$branch"
 unset GIT_DIR
 
+webProjectDir="/home/web/$project"
+gitProjectDir="/home/git/$project"
+
 if [ ! -d "$DeployPath" ]; then
-  webProjectDir="/home/web/$project"
   if [ ! -d "$webProjectDir" ]; then
     mkdir $webProjectDir
   fi
   cd $webProjectDir
-  git clone /home/git/$project -b $branch $branch
+  git clone $gitProjectDir -b $branch $branch
 fi
 
 echo "==============================================="
 cd $DeployPath
-echo "[$project]deploying at $DeployPath and branch is $branch"
+echo "[$project/$branch] deploying at $DeployPath"
+
+sudo chown -R git.git $DeployPath
 
 #git stash
 #git pull origin master
 git fetch --all
 git reset --hard "origin/$branch"
+#composer install
+
+sudo chown -R nginx.nginx $DeployPath
 
 time=`date`
 echo "web server deploy at: $time."
